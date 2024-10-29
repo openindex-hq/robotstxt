@@ -21,27 +21,56 @@
 
 // Converted 2020-04-21, from https://github.com/google/robotstxt/blob/master/robots_test.cc
 
-package grobotstxt_test
+package robotstxt
 
 import (
+	"fmt"
 	"strings"
+	"testing"
 
-	"github.com/jimsmart/grobotstxt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 )
+
+// Google-specific: system test.
+func TestGoogleOnlySystemTest(t *testing.T) {
+	matcher := NewRobotsMatcher()
+
+	// Line :37
+	const robotstxt = "user-agent: FooBot\n" +
+		"disallow: /\n"
+
+	tests := []struct {
+		robotstxt string
+		userAgent string
+		url       string
+		expected  bool
+	}{
+		{"", "FooBot", "", true},         // Empty robots.txt: everything allowed.
+		{robotstxt, "", "", true},        // Empty user-agent to be matched: everything allowed.
+		{robotstxt, "FooBot", "", false}, // Empty url: implicitly disallowed, see method comment for GetPathParamsQuery in robots.cc.
+		{"", "", "", true},               // All params empty: same as robots.txt empty, everything allowed.
+	}
+
+	for i, test := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			assert.Equal(t, test.expected, matcher.AgentAllowed(test.robotstxt, test.userAgent, test.url))
+		})
+	}
+}
 
 var _ = Describe("Robots", func() {
 
 	// Line :30
 	IsUserAgentAllowed := func(robotstxt, userAgent, url string) bool {
-		matcher := grobotstxt.NewRobotsMatcher()
+		matcher := NewRobotsMatcher()
 		return matcher.AgentAllowed(robotstxt, userAgent, url)
 	}
 
 	AllowedByRobots := func(robotstxt, userAgents, url string) bool {
 		userAgentList := strings.Split(userAgents, ",")
-		matcher := grobotstxt.NewRobotsMatcher()
+		matcher := NewRobotsMatcher()
 		return matcher.AgentsAllowed(robotstxt, userAgentList, url)
 	}
 
@@ -52,25 +81,6 @@ var _ = Describe("Robots", func() {
 	EXPECT_FALSE := func(b bool) {
 		Expect(b).To(BeFalse())
 	}
-
-	// Google-specific: system test.
-	It("should GoogleOnly_SystemTest", func() {
-		// Line :37
-		const robotstxt = "user-agent: FooBot\n" +
-			"disallow: /\n"
-		// Empty robots.txt: everything allowed.
-		EXPECT_TRUE(IsUserAgentAllowed("", "FooBot", ""))
-
-		// Empty user-agent to be matched: everything allowed.
-		EXPECT_TRUE(IsUserAgentAllowed(robotstxt, "", ""))
-
-		// Empty url: implicitly disallowed, see method comment for GetPathParamsQuery
-		// in robots.cc.
-		EXPECT_FALSE(IsUserAgentAllowed(robotstxt, "FooBot", ""))
-
-		// All params empty: same as robots.txt empty, everything allowed.
-		EXPECT_TRUE(IsUserAgentAllowed("", "", ""))
-	})
 
 	// Rules are colon separated name-value pairs. The following names are
 	// provisioned:
@@ -220,27 +230,27 @@ var _ = Describe("Robots", func() {
 	// https://tools.ietf.org/html/draft-koster-rep#section-2.2.1
 	It("should ID_VerifyValidUserAgentsToObey", func() {
 		// Line :155
-		EXPECT_TRUE(grobotstxt.IsValidUserAgentToObey("Foobot"))
-		EXPECT_TRUE(grobotstxt.IsValidUserAgentToObey("Foobot-Bar"))
-		EXPECT_TRUE(grobotstxt.IsValidUserAgentToObey("Foo_Bar"))
+		EXPECT_TRUE(IsValidUserAgentToObey("Foobot"))
+		EXPECT_TRUE(IsValidUserAgentToObey("Foobot-Bar"))
+		EXPECT_TRUE(IsValidUserAgentToObey("Foo_Bar"))
 
-		//   EXPECT_FALSE(grobotstxt.IsValidUserAgentToObey(absl::string_view()));
-		EXPECT_FALSE(grobotstxt.IsValidUserAgentToObey(""))
-		EXPECT_FALSE(grobotstxt.IsValidUserAgentToObey("ツ"))
+		//   EXPECT_FALSE(IsValidUserAgentToObey(absl::string_view()));
+		EXPECT_FALSE(IsValidUserAgentToObey(""))
+		EXPECT_FALSE(IsValidUserAgentToObey("ツ"))
 
-		// EXPECT_FALSE(grobotstxt.IsValidUserAgentToObey("Foobot*")) // Allowed by RFC 7231.
-		EXPECT_FALSE(grobotstxt.IsValidUserAgentToObey(" Foobot "))
-		EXPECT_FALSE(grobotstxt.IsValidUserAgentToObey("Foobot/2.1"))
+		// EXPECT_FALSE(IsValidUserAgentToObey("Foobot*")) // Allowed by RFC 7231.
+		EXPECT_FALSE(IsValidUserAgentToObey(" Foobot "))
+		EXPECT_FALSE(IsValidUserAgentToObey("Foobot/2.1"))
 
-		EXPECT_FALSE(grobotstxt.IsValidUserAgentToObey("Foobot Bar"))
+		EXPECT_FALSE(IsValidUserAgentToObey("Foobot Bar"))
 	})
 
 	// A user-agent line can in fact contain a wider range of characters
 	// than the original spec referenced above, according to RFC7231.
 	// https://httpwg.org/specs/rfc7231.html#header.user-agent
 	It("should ID_VerifyValidUserAgentsToObey", func() {
-		EXPECT_TRUE(grobotstxt.IsValidUserAgentToObey("Foo12bot"))
-		EXPECT_TRUE(grobotstxt.IsValidUserAgentToObey("Foobot~Bar"))
+		EXPECT_TRUE(IsValidUserAgentToObey("Foo12bot"))
+		EXPECT_TRUE(IsValidUserAgentToObey("Foobot~Bar"))
 	})
 
 	// User-agent line values are case insensitive. See REP I-D section "The
@@ -282,7 +292,7 @@ var _ = Describe("Robots", func() {
 	// https://tools.ietf.org/html/draft-koster-rep#section-2.2.1
 	It("should GoogleOnly_AcceptUserAgentUpToFirstSpace", func() {
 		// Line :210
-		EXPECT_FALSE(grobotstxt.IsValidUserAgentToObey("Foobot Bar"))
+		EXPECT_FALSE(IsValidUserAgentToObey("Foobot Bar"))
 		const robotstxt = "User-Agent: *\n" +
 			"Disallow: /\n" +
 			"User-Agent: Foo Bar\n" +
@@ -748,7 +758,7 @@ var _ = Describe("Robots", func() {
 			"\n" +
 			"\n" +
 			"Disallow: /\n"
-		grobotstxt.Parse(unixFile, report)
+		Parse(unixFile, report)
 		EXPECT_EQ(4, report.validDirectives)
 		EXPECT_EQ(6, report.lastLineSeen)
 
@@ -758,7 +768,7 @@ var _ = Describe("Robots", func() {
 			"\r\n" +
 			"\r\n" +
 			"Disallow: /\r\n"
-		grobotstxt.Parse(dosFile, report)
+		Parse(dosFile, report)
 		EXPECT_EQ(4, report.validDirectives)
 		EXPECT_EQ(6, report.lastLineSeen)
 
@@ -768,7 +778,7 @@ var _ = Describe("Robots", func() {
 			"\r" +
 			"\r" +
 			"Disallow: /\r"
-		grobotstxt.Parse(macFile, report)
+		Parse(macFile, report)
 		EXPECT_EQ(4, report.validDirectives)
 		EXPECT_EQ(6, report.lastLineSeen)
 
@@ -778,7 +788,7 @@ var _ = Describe("Robots", func() {
 			"\n" +
 			"\n" +
 			"Disallow: /"
-		grobotstxt.Parse(noFinalNewline, report)
+		Parse(noFinalNewline, report)
 		EXPECT_EQ(4, report.validDirectives)
 		EXPECT_EQ(6, report.lastLineSeen)
 
@@ -788,7 +798,7 @@ var _ = Describe("Robots", func() {
 			"\r\n" +
 			"\n" +
 			"Disallow: /"
-		grobotstxt.Parse(mixedFile, report)
+		Parse(mixedFile, report)
 		EXPECT_EQ(4, report.validDirectives)
 		EXPECT_EQ(6, report.lastLineSeen)
 	})
@@ -801,7 +811,7 @@ var _ = Describe("Robots", func() {
 		const utf8FileFullBOM = "\xEF\xBB\xBF" +
 			"User-Agent: foo\n" +
 			"Allow: /AnyValue\n"
-		grobotstxt.Parse(utf8FileFullBOM, report)
+		Parse(utf8FileFullBOM, report)
 		EXPECT_EQ(2, report.validDirectives)
 		EXPECT_EQ(0, report.unknownDirectives)
 
@@ -809,14 +819,14 @@ var _ = Describe("Robots", func() {
 		const utf8FilePartial2BOM = "\xEF\xBB" +
 			"User-Agent: foo\n" +
 			"Allow: /AnyValue\n"
-		grobotstxt.Parse(utf8FilePartial2BOM, report)
+		Parse(utf8FilePartial2BOM, report)
 		EXPECT_EQ(2, report.validDirectives)
 		EXPECT_EQ(0, report.unknownDirectives)
 
 		const utf8FilePartial1BOM = "\xEF" +
 			"User-Agent: foo\n" +
 			"Allow: /AnyValue\n"
-		grobotstxt.Parse(utf8FilePartial1BOM, report)
+		Parse(utf8FilePartial1BOM, report)
 		EXPECT_EQ(2, report.validDirectives)
 		EXPECT_EQ(0, report.unknownDirectives)
 
@@ -825,7 +835,7 @@ var _ = Describe("Robots", func() {
 		const utf8FileBrokenBOM = "\xEF\x11\xBF" +
 			"User-Agent: foo\n" +
 			"Allow: /AnyValue\n"
-		grobotstxt.Parse(utf8FileBrokenBOM, report)
+		Parse(utf8FileBrokenBOM, report)
 		EXPECT_EQ(1, report.validDirectives)
 		EXPECT_EQ(1, report.unknownDirectives) // We get one broken line.
 
@@ -833,7 +843,7 @@ var _ = Describe("Robots", func() {
 		const utf8BOMSomewhereInMiddleOfFile = "User-Agent: foo\n" +
 			"\xEF\xBB\xBF" +
 			"Allow: /AnyValue\n"
-		grobotstxt.Parse(utf8BOMSomewhereInMiddleOfFile, report)
+		Parse(utf8BOMSomewhereInMiddleOfFile, report)
 		EXPECT_EQ(1, report.validDirectives)
 		EXPECT_EQ(1, report.unknownDirectives)
 	})
@@ -855,7 +865,7 @@ var _ = Describe("Robots", func() {
 					"\n"
 			robotstxt += "Sitemap: " + sitemap_loc + "\n"
 
-			grobotstxt.Parse(robotstxt, report)
+			Parse(robotstxt, report)
 			EXPECT_EQ(sitemap_loc, report.sitemap)
 		}()
 		// A sitemap line may appear anywhere in the file.
@@ -869,7 +879,7 @@ var _ = Describe("Robots", func() {
 				"\n"
 			robotstxt += "Sitemap: " + sitemap_loc + "\n" + robotstxt_temp
 
-			grobotstxt.Parse(robotstxt, report)
+			Parse(robotstxt, report)
 			EXPECT_EQ(sitemap_loc, report.sitemap)
 		}()
 	})

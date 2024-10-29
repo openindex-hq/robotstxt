@@ -26,7 +26,7 @@
 
 // Converted 2020-04-21, from https://github.com/google/robotstxt/blob/master/robots.cc
 
-package grobotstxt
+package robotstxt
 
 import (
 	"bytes"
@@ -44,12 +44,11 @@ var AllowFrequentTypos = true
 // Each Match* method should return a match priority, which is
 // interpreted as:
 //
-//  match priority < 0:  No match.
+//	match priority < 0:  No match.
 //
-//  match priority == 0: Match, but treat it as if matched an empty pattern.
+//	match priority == 0: Match, but treat it as if matched an empty pattern.
 //
-//  match priority > 0:  Match.
-//
+//	match priority > 0:  Match.
 type MatchStrategy interface {
 	MatchAllow(path, pattern string) int
 	MatchDisallow(path, pattern string) int
@@ -181,8 +180,10 @@ func findByte(s string, b byte, i int) int {
 // and any existing percent-encoded values have their hex values normalised to uppercase.
 //
 // For example:
-//     /SanJoséSellers ==> /Sanjos%C3%A9Sellers
-//     %aa ==> %AA
+//
+//	/SanJoséSellers ==> /Sanjos%C3%A9Sellers
+//	%aa ==> %AA
+//
 // If the given path pattern is already adequately escaped,
 // the original string is returned unchanged.
 func escapePattern(path string) string {
@@ -577,8 +578,10 @@ func Parse(robotsBody string, handler ParseHandler) {
 // directives. For example, in case of conflicting matches (both Allow and
 // Disallow), the longest match is the one the user wants. For example, in
 // case of a robots.txt file that has the following rules
-//   Allow: /
-//   Disallow: /cgi-bin
+//
+//	Allow: /
+//	Disallow: /cgi-bin
+//
 // it's pretty obvious what the webmaster wants: they want to allow crawl of
 // every URI except /cgi-bin. However, according to the expired internet
 // standard, crawlers should be allowed to crawl everything with such a rule.

@@ -1,4 +1,4 @@
-package grobotstxt_test
+package robotstxt_test
 
 import (
 	"testing"

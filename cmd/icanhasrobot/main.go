@@ -40,18 +40,18 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
-	"github.com/jimsmart/grobotstxt"
+	"github.com/openindex-hq/robotstxt"
 )
 
 func loadFile(filename string) (string, error) {
-	bytes, err := ioutil.ReadFile(filename)
+	bytes, err := os.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}
+
 	return string(bytes), nil
 }
 
@@ -75,20 +75,24 @@ func main() {
 	if len(argv) >= 2 {
 		filename = argv[1]
 	}
+
 	if filename == "-h" || filename == "-help" || filename == "--help" {
 		showHelp(argv)
+
 		os.Exit(2)
 	}
 
 	if len(argv) != 4 {
 		fmt.Fprint(os.Stderr, "Invalid amount of arguments. Showing help.\n\n")
 		showHelp(argv)
+
 		os.Exit(2)
 	}
 
 	robotsContent, err := loadFile(filename)
 	if err != nil {
 		fmt.Fprint(os.Stderr, "failed to read file \""+filename+"\"\n")
+
 		os.Exit(2)
 	}
 
@@ -96,16 +100,20 @@ func main() {
 	userAgentList := strings.Split(userAgent, ",")
 	uri := argv[3]
 
-	allowed := grobotstxt.AgentsAllowed(robotsContent, userAgentList, uri)
+	allowed := robotstxt.AgentsAllowed(robotsContent, userAgentList, uri)
 
 	m := "user-agent '" + userAgent + "' with URI '" + uri + "': "
+
 	if allowed {
 		m += "ALLOWED"
 	} else {
 		m += "DISALLOWED"
 	}
+
 	m += "\n"
+
 	fmt.Fprint(os.Stdout, m)
+
 	if len(robotsContent) == 0 {
 		fmt.Fprint(os.Stdout, "notice: robots file is empty so all user-agents are allowed\n")
 	}

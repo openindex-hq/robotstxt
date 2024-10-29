@@ -1,11 +1,11 @@
 # grobotstxt
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Build Status](https://github.com/jimsmart/grobotstxt/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jimsmart/grobotstxt/actions/workflows/main.yml)
+[![Build Status](https://github.com/openindex-hq/robotstxt/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/openindex-hq/robotstxt/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/jimsmart/grobotstxt/branch/master/graph/badge.svg)](https://codecov.io/gh/jimsmart/grobotstxt)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jimsmart/grobotstxt?cache-buster)](https://goreportcard.com/report/github.com/jimsmart/grobotstxt)
-[![Used By](https://img.shields.io/sourcegraph/rrc/github.com/jimsmart/grobotstxt.svg)](https://sourcegraph.com/github.com/jimsmart/grobotstxt)
-[![Godoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/jimsmart/grobotstxt)
+[![Go Report Card](https://goreportcard.com/badge/github.com/openindex-hq/robotstxt?cache-buster)](https://goreportcard.com/report/github.com/openindex-hq/robotstxt)
+[![Used By](https://img.shields.io/sourcegraph/rrc/github.com/openindex-hq/robotstxt.svg)](https://sourcegraph.com/github.com/openindex-hq/robotstxt)
+[![Godoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/openindex-hq/robotstxt)
 
 grobotstxt is a native Go port of [Google's robots.txt parser and matcher C++
 library](https://github.com/google/robotstxt).
@@ -43,13 +43,13 @@ Package grobotstxt aims to be a faithful conversion, from C++ to Go, of Google's
 Get the package (only needed if not using modules):
 
 ```bash
-go get github.com/jimsmart/grobotstxt
+go get github.com/openindex-hq/robotstxt
 ```
 
 Use the package within your code (see examples below):
 
 ```go
-import "github.com/jimsmart/grobotstxt"
+import "github.com/openindex-hq/robotstxt"
 ```
 
 #### For webmasters
@@ -59,13 +59,13 @@ Assumes Go is installed, and its environment is already set up.
 Fetch the package:
 
 ```bash
-go get github.com/jimsmart/grobotstxt
+go get github.com/openindex-hq/robotstxt
 ```
 
 Build and install the standalone binary executable:
 
 ```bash
-go install github.com/jimsmart/grobotstxt/...
+go install github.com/openindex-hq/robotstxt/...
 ```
 
 By default, the resulting binary executable will be `~/go/bin/icanhasrobot` (assuming no customisation has been made to `$GOPATH` or `$GOBIN`).
@@ -91,7 +91,7 @@ If `$GOBIN` is not included in your environment's `$PATH`, use the full path `~/
 #### `AgentAllowed`
 
 ```go
-import "github.com/jimsmart/grobotstxt"
+import "github.com/openindex-hq/robotstxt"
 
 // Contents of robots.txt file.
 robotsTxt := `
@@ -124,7 +124,7 @@ sitemaps := grobotstxt.Sitemaps(robotsTxt)
 
 ## Documentation
 
-GoDocs [https://godoc.org/github.com/jimsmart/grobotstxt](https://godoc.org/github.com/jimsmart/grobotstxt)
+GoDocs [https://godoc.org/github.com/openindex-hq/robotstxt](https://godoc.org/github.com/openindex-hq/robotstxt)
 
 ## Testing
 
@@ -150,7 +150,7 @@ This is the only behavioural change between grobotstxt and the original C++ libr
 
 ## License
 
-Like the original library, package grobotstxt is licensed under the terms of the
+Like the original library, package robotstxt is licensed under the terms of the
 Apache License, Version 2.0.
 
 See [LICENSE](LICENSE) for more information.
@@ -158,7 +158,7 @@ See [LICENSE](LICENSE) for more information.
 ## Links
 
 - Original project:
-    [Google robots.txt parser and matcher library](https://github.com/google/robotstxt)
+  [Google robots.txt parser and matcher library](https://github.com/google/robotstxt)
 
 ## History
 

@@ -1,3 +1,4 @@
+// Copyright 2024 Axel Etcheverry
 // Copyright 2020 Jim Smart
 // Copyright 2019 Google LLC
 //
@@ -21,54 +22,61 @@
 
 // Converted 2020-04-21, from https://github.com/google/robotstxt/blob/master/robots_test.cc
 
-package grobotstxt
+package robotstxt
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-var _ = Describe("Robots private", func() {
-
-	// Line :948
-	TestPath := func(uri, expected string) {
-		x := getPathParamsQuery(uri)
-		Expect(x).To(Equal(expected))
+func TestGetPathParamsQuery(t *testing.T) {
+	tests := []struct {
+		uri      string
+		expected string
+	}{
+		{"", "/"},
+		{"http://www.example.com", "/"},
+		{"http://www.example.com/", "/"},
+		{"http://www.example.com/a", "/a"},
+		{"http://www.example.com/a/", "/a/"},
+		{"http://www.example.com/a/b?c=http://d.e/", "/a/b?c=http://d.e/"},
+		{"http://www.example.com/a/b?c=d&e=f#fragment", "/a/b?c=d&e=f"},
+		{"example.com", "/"},
+		{"example.com/", "/"},
+		{"example.com/a", "/a"},
+		{"example.com/a/", "/a/"},
+		{"example.com/a/b?c=d&e=f#fragment", "/a/b?c=d&e=f"},
+		{"a", "/"},
+		{"a/", "/"},
+		{"/a", "/a"},
+		{"a/b", "/b"},
+		{"example.com?a", "/?a"},
+		{"example.com/a;b#c", "/a;b"},
+		{"//a/b/c", "/b/c"},
 	}
 
-	TestEscape := func(uri, expected string) {
-		x := escapePattern(uri)
-		Expect(x).To(Equal(expected))
+	for _, test := range tests {
+		t.Run(test.uri, func(t *testing.T) {
+			assert.Equal(t, test.expected, getPathParamsQuery(test.uri))
+		})
+	}
+}
+
+func TestMaybeEscapePattern(t *testing.T) {
+	tests := []struct {
+		uri      string
+		expected string
+	}{
+		{"http://www.example.com", "http://www.example.com"},
+		{"/a/b/c", "/a/b/c"},
+		{"á", "%C3%A1"},
+		{"%aa", "%AA"},
 	}
 
-	It("should TestGetPathParamsQuery", func() {
-		// Only testing URLs that are already correctly escaped here.
-		TestPath("", "/")
-		TestPath("http://www.example.com", "/")
-		TestPath("http://www.example.com/", "/")
-		TestPath("http://www.example.com/a", "/a")
-		TestPath("http://www.example.com/a/", "/a/")
-		TestPath("http://www.example.com/a/b?c=http://d.e/", "/a/b?c=http://d.e/")
-		TestPath("http://www.example.com/a/b?c=d&e=f#fragment", "/a/b?c=d&e=f")
-		TestPath("example.com", "/")
-		TestPath("example.com/", "/")
-		TestPath("example.com/a", "/a")
-		TestPath("example.com/a/", "/a/")
-		TestPath("example.com/a/b?c=d&e=f#fragment", "/a/b?c=d&e=f")
-		TestPath("a", "/")
-		TestPath("a/", "/")
-		TestPath("/a", "/a")
-		TestPath("a/b", "/b")
-		TestPath("example.com?a", "/?a")
-		TestPath("example.com/a;b#c", "/a;b")
-		TestPath("//a/b/c", "/b/c")
-	})
-
-	It("should TestMaybeEscapePattern", func() {
-		TestEscape("http://www.example.com", "http://www.example.com")
-		TestEscape("/a/b/c", "/a/b/c")
-		TestEscape("á", "%C3%A1")
-		TestEscape("%aa", "%AA")
-	})
-
-})
+	for _, test := range tests {
+		t.Run(test.uri, func(t *testing.T) {
+			assert.Equal(t, test.expected, escapePattern(test.uri))
+		})
+	}
+}

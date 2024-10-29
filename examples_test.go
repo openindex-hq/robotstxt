@@ -1,9 +1,9 @@
-package grobotstxt_test
+package robotstxt_test
 
 import (
 	"fmt"
 
-	"github.com/jimsmart/grobotstxt"
+	grobotstxt "github.com/openindex-hq/robotstxt"
 )
 
 func ExampleAgentAllowed() {

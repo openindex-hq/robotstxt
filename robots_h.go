@@ -36,7 +36,7 @@
 
 // Converted 2020-04-21, from https://github.com/google/robotstxt/blob/master/robots.h
 
-package grobotstxt
+package robotstxt
 
 // ParseHandler is a handler for directives found in robots.txt.
 // These callbacks are called by Parse() in the sequence they

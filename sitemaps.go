@@ -1,4 +1,4 @@
-package grobotstxt
+package robotstxt
 
 type sitemapExtractor struct {
 	sitemaps []string
